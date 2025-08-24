@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+  <title>New World Extensions Visualisation</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Montserrat', sans-serif;
+      background: #fafafa; 
+    }
+    .link { fill: none; stroke-opacity: 0.2; stroke-width: 6px;}
+    .link.highlight { stroke-opacity: 1; stroke-width: 6px; }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 6px;
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 12px;
+    }
+    .ext-label {
+      font-family: sans-serif;
+      font-size: 20px;
+      fill: black;
+      pointer-events: none; /* labels won't block hover */
+    }
+    #chart {
+    position: absolute;      /* fix position relative to viewport */
+    width: 1300px;           /* fixed width */
+    height: 900px;           /* fixed height */
+    background-image: url('background.png');
+    background-size: contain;  /* keeps aspect ratio */
+    background-repeat: no-repeat;
+    background-position: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart">
+    <svg id="viz" width="1300" height="900"></svg>
+  </div>
+  <!-- <svg id="viz" width="1300" height="650"></svg> -->
+  <script>
+    // const width = 1300, height = 650;
+    const svg = d3.select("#viz");
+    // const tooltip = d3.select("body").append("div")
+    //   .attr("class", "tooltip")
+    //   .style("opacity", 0);
+
+    // Wrap everything in a group to shift the chart ---
+    const chartGroup = svg.append("g")
+      .attr("transform", "translate(50, 190)"); // adjust 100px down
+
+    // Shops dataset
+    const shops = [
+      { id: "Birkenhead", x: 150, icon: "Birken.svg", hoverIcon: "Birken2.svg"},
+      { id: "Milford", x: 350, icon: "Mil.svg", hoverIcon: "Mil2.svg"},
+      { id: "Shore City", x: 550, icon: "Shor.svg", hoverIcon: "Shor2.svg" },
+      { id: "Devonport", x: 750, icon: "Devo.svg", hoverIcon: "Devo2.svg" },
+      { id: "Albany", x: 950, icon: "Alba.svg", hoverIcon: "Alba2.svg" }
+    ];
+
+    // Departments dataset
+    const departments = [
+      { id: "Bakery", y: 500, icon: "https://img.icons8.com/color/96/bread.png"},
+      { id: "Seafood", y: 500, icon: "https://img.icons8.com/?size=100&id=12881&format=png&color=000000" },
+      { id: "Butchery", y: 500, icon: "https://img.icons8.com/color/96/steak.png" },
+      { id: "Produce", y: 500, icon: "https://img.icons8.com/color/96/vegetarian-food.png" },
+      { id: "Deli", y: 500, icon: "https://img.icons8.com/?size=100&id=Iq8pQFiZuir9&format=png&color=000000" },
+      { id: "Frozen", y:500, icon: "https://img.icons8.com/?size=100&id=13316&format=png&color=000000"},
+      { id: "Beer & Wine", y:500, icon: "https://img.icons8.com/?size=100&id=13300&format=png&color=000000.png"},
+      { id: "Online", y: 500, icon: "https://img.icons8.com/?size=100&id=2J4aRdiLs1vT&format=png&color=000000" },
+      { id: "Humans", y: 500, icon: "https://img.icons8.com/?size=100&id=21838&format=png&color=000000.png" },
+    ];
+
+    // Stroke colours
+    const deptColors = {
+      "Bakery": "#FFD700",  
+      "Seafood": "#1E90FF",  
+      "Deli": "#FF914d",    
+      "Produce": "#32CD32", 
+      "Butchery": "#b5102e",   
+      "Humans": "black",
+      "Beer & Wine": "#8f673c",
+      "Frozen": "#FF69B4",
+      "Online": "#8d52fa"
+    };
+
+    const links = [
+      { shop: "Birkenhead", dept: "Bakery", ext: "1" },
+      { shop: "Birkenhead", dept: "Butchery", ext: "2" },
+      { shop: "Birkenhead", dept: "Beer & Wine", ext: "3" },
+      { shop: "Birkenhead", dept: "Seafood", ext: "4" },
+      { shop: "Birkenhead", dept: "Deli", ext: "5" },
+      { shop: "Birkenhead", dept: "Frozen", ext: "6" },
+      { shop: "Birkenhead", dept: "Produce", ext: "7" },
+      { shop: "Birkenhead", dept: "Online", ext: "733" },
+      { shop: "Birkenhead", dept: "Humans", ext: "0" },
+      { shop: "Milford", dept: "Humans", ext: "701" },
+      // { shop: "Milford", dept: "Duty Manager", ext: "724" },
+      // { shop: "Milford", dept: "Office Reception", ext: "700" },
+      { shop: "Milford", dept: "Bakery", ext: "710" },
+      { shop: "Milford", dept: "Butchery", ext: "712" },
+      { shop: "Milford", dept: "Produce", ext: "716" },
+      { shop: "Milford", dept: "Seafood", ext: "754" },
+      { shop: "Milford", dept: "Deli", ext: "717" },
+      // { shop: "Milford", dept: "Store Manager", ext: "760" },
+      // { shop: "Milford", dept: "Buyer Grocery", ext: "714" },
+      // { shop: "Milford", dept: "HR Manager", ext: "740" },
+      // { shop: "Milford", dept: "Office Manager", ext: "704" },
+      // { shop: "Shore City", dept: "Checkout", ext: "701" },
+      { shop: "Shore City", dept: "Bakery", ext: "710" },
+      { shop: "Shore City", dept: "Deli", ext: "710" },
+      { shop: "Shore City", dept: "Butchery", ext: "712" },
+      { shop: "Shore City", dept: "Seafood", ext: "712" },
+      { shop: "Shore City", dept: "Produce", ext: "716" },
+      // { shop: "Shore City", dept: "Storeroom", ext: "709" },
+      // { shop: "Shore City", dept: "Administration", ext: "702" },
+      { shop: "Shore City", dept: "Humans", ext: "700" },
+      // { shop: "Devonport", dept: "Checkout", ext: "1" },
+      // { shop: "Devonport", dept: "Grocery", ext: "2" },
+      { shop: "Devonport", dept: "Deli", ext: "3" },
+      { shop: "Devonport", dept: "Produce", ext: "4" },
+      { shop: "Devonport", dept: "Butchery", ext: "5" },
+      // { shop: "Devonport", dept: "Chilled Foods", ext: "6" },
+      { shop: "Devonport", dept: "Frozen", ext: "6/7" },
+      { shop: "Devonport", dept: "Bakery", ext: "8" },
+      { shop: "Devonport", dept: "Beer & Wine", ext: "9" },
+      { shop: "Devonport", dept: "Seafood", ext: "711" },
+      { shop: "Devonport", dept: "Online", ext: "714" },
+      { shop: "Devonport", dept: "Humans", ext: "0" },
+      { shop: "Albany", dept: "Online", ext: "759" },
+      { shop: "Albany", dept: "Deli", ext: "818" },
+      { shop: "Albany", dept: "Bakery", ext: "710" },
+      { shop: "Albany", dept: "Butchery", ext: "712" },
+      // { shop: "Albany", dept: "Checkouts", ext: "752" },
+      { shop: "Albany", dept: "Frozen", ext: "756" },
+      // { shop: "Albany", dept: "Buyer", ext: "755" },
+      { shop: "Albany", dept: "Beer & Wine", ext: "750" },
+      { shop: "Albany", dept: "Produce", ext: "726" },
+      { shop: "Albany", dept: "Seafood", ext: "711" },
+      // { shop: "Albany", dept: "Storeroom", ext: "751" },
+      // { shop: "Albany", dept: "HR / Compliance", ext: "724" },
+      { shop: "Albany", dept: "Humans", ext: "700" }
+    ];
+
+    // Layout positions
+    shops.forEach(d => d.y = 80);
+    departments.forEach((d,i) => d.x = 100 + i * 90);
+
+    const line = d3.line().curve(d3.curveStep);
+
+    const shopHW = 75, shopHH = 75; // half-width/height of shop icons
+    const deptHW = 20, deptHH = 20; // half-width/height of department icons
+
+    // Draw links
+    const linkElems = chartGroup.selectAll(".link")
+      .data(links)
+      .join("path")
+      .attr("class", "link")
+      // .attr("stroke", "#FFD700")
+      // .attr("stroke", d => deptColors[d.dept])
+      .attr("stroke", d => deptColors[d.dept])
+      // .attr("style", d => `stroke: ${deptColors[d.dept]} !important; stroke-width:8; stroke-opacity:0.2;`)
+      // .attr("stroke-width", 10) 
+      .attr("d", d => {
+        const s = shops.find(x => x.id === d.shop);
+        const t = departments.find(x => x.id === d.dept);
+
+        const sLinks = links.filter(l => l.shop === d.shop);
+        const index = sLinks.findIndex(l => l.dept === d.dept);
+        const offset = (index - (sLinks.length-1)/2) * 15; // spacing links 15px apart
+
+        const startX = s.x + offset;
+        const midY = (s.y + shopHH + t.y - deptHH) / 2 + (Math.random() - 0.5) * 80;
+        return line([
+          [startX, s.y + shopHH + 10], 
+          [startX, midY],    
+          [t.x, t.y - deptHH/0.4],
+          [t.x, t.y]   
+        ]);
+                });
+
+    // Layer to hold temporary extension labels
+    const labelLayer = chartGroup.append("g").attr("class", "ext-labels");
+
+    // --- Shop icons ---
+    chartGroup.selectAll(".shop")
+      .data(shops)
+      .join("image")
+      .attr("class", "shop")
+      .attr("xlink:href", d => d.icon)
+      .attr("x", d => d.x - shopHW)
+      .attr("y", d => d.y - shopHH)
+      .attr("width", 2*shopHW)
+      .attr("height", 2*shopHH)
+      .on("mouseover", function(event, d){
+        // Swap to hover icon
+        d3.select(this).attr("xlink:href", d.hoverIcon);  
+        // Enlarge shop icon
+        // d3.select(this)
+        //   .transition().duration(200)
+        //   .attr("width", 170)
+        //   .attr("height", 170)
+        //   .attr("x", d.x - 85)
+        //   .attr("y", d.y - 85);
+
+        // Highlight connected links
+        linkElems
+          .classed("highlight", l => l.shop === d.id)
+          .attr("stroke-opacity", l => l.shop === d.id ? 1 : 0.1);
+
+        // Enlarge connected department icons
+        chartGroup.selectAll(".dept")
+          .filter(dept => links.some(l => l.shop === d.id && l.dept === dept.id))
+          .transition().duration(200)
+          .attr("width", 2*deptHW*1.5)
+          .attr("height", 2*deptHH*1.5)
+          .attr("x", dept => dept.x - deptHW*1.5)
+          .attr("y", dept => dept.y - deptHH*1.5);
+
+        // Clear any previous labels (just in case)
+        labelLayer.selectAll(".ext-label").remove();
+
+        // For each department connected to this shop, add a label with the ext
+        links
+          .filter(l => l.shop === d.id)
+          .forEach(l => {
+            const dept = departments.find(dep => dep.id === l.dept);
+            if (!dept) return;
+            
+            console.log("Showing extension for shop:", d.id, "department:", l.dept, "ext:", l.ext, "coords:", dept.x, dept.y);
+
+            labelLayer.append("text")
+              .attr("class", "ext-label")
+              .attr("x", dept.x)
+              .attr("y", dept.y + deptHH * 2.2 + 5) // below the icon
+              .attr("text-anchor", "middle")
+              .text(l.ext)
+              .style("opacity", 0)
+              .transition().duration(200)
+              .style("opacity", 1);
+          });
+      })
+      .on("mouseout", function(event, d){
+        // Revert to original icon
+        d3.select(this).attr("xlink:href", d.icon);
+        // Reset shop icon size
+        d3.select(this)
+          .transition().duration(200)
+          .attr("width", 2*shopHW)
+          .attr("height", 2*shopHH)
+          .attr("x", d.x - shopHW)
+          .attr("y", d.y - shopHH);
+
+        // Reset links
+        linkElems.classed("highlight", false).attr("stroke-opacity", 0.3);
+
+        // Reset connected department icons
+        chartGroup.selectAll(".dept")
+          .filter(dept => links.some(l => l.shop === d.id && l.dept === dept.id))
+          .transition().duration(200)
+          .attr("width", 2*deptHW)
+          .attr("height", 2*deptHH)
+          .attr("x", dept => dept.x - deptHW)
+          .attr("y", dept => dept.y - deptHH);
+
+        // Remove all extension labels
+        labelLayer.selectAll(".ext-label").remove();
+      });
+
+    // --- Department icons ---
+    chartGroup.selectAll(".dept")
+      .data(departments)
+      .join("image")
+      .attr("class", "dept")
+      .attr("xlink:href", d => d.icon)
+      .attr("x", d => d.x - deptHW)
+      .attr("y", d => d.y - deptHH)
+      .attr("width", 2*deptHW)
+      .attr("height", 2*deptHH)
+      .on("mouseover", function(event, d){
+        linkElems
+          .classed("highlight", l => l.dept === d.id)
+          .attr("stroke-opacity", l => l.dept === d.id ? 1 : 0.1);
+      })
+      .on("mouseout", function(){
+        linkElems.classed("highlight", false).attr("stroke-opacity", 0.4);
+      });
+
+  </script>
+</body>
+</html>
