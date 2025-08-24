@@ -1,0 +1,54 @@
+﻿shop,extension,department,category
+Birkenhead,1,Bakery,Bakery
+Birkenhead,2,Butchery,Butchery
+Birkenhead,3,Beer & Wine,Liquor
+Birkenhead,4,Seafood,Seafood
+Birkenhead,5,Deli Kitchen,Deli
+Birkenhead,6,Chilled Frozen Foods,Frozen
+Birkenhead,7,Produce,Produce
+Birkenhead,733,Online Shopping,Online
+Birkenhead,0,Checkout / Grocery Assistance,Humans
+Milford,701,Checkout & Customer Service,Humans
+Milford,724,Duty Manager,Manager
+Milford,700,Office Reception,Office
+Milford,710,Bakery,Bakery
+Milford,712,Butchery,Butchery
+Milford,716,Produce,Produce
+Milford,754,Seafood,Seafood
+Milford,717,Service Deli,Deli
+Milford,760,Store Manager,Manager
+Milford,714,Buyer Grocery,Buyer
+Milford,740,HR Manager,HR
+Milford,704,Office Manager,Office
+Devonport,0,Operator Assistance,Humans
+Devonport,1,Checkouts,Checkout
+Devonport,2,Grocery,Grocery
+Devonport,3,Service Deli,Deli
+Devonport,4,Produce,Produce
+Devonport,5,Butchery,Butchery
+Devonport,6,Chilled Foods,Frozen
+Devonport,7,Frozen Foods,Frozen
+Devonport,8,Bakery,Bakery
+Devonport,9,Wine & Beer,Liquor
+Devonport,711,Seafood,Seafood
+Devonport,714,Online Shopping,Online
+Albany,759,Online Shopping,Online
+Albany,818,Catering / Service Deli,Deli
+Albany,710,Bakery,Bakery
+Albany,712,Butchery,Butchery
+Albany,752,Checkouts,Checkout
+Albany,756,Chilled / Frozen Foods,Frozen
+Albany,755,Buyer,Buyer
+Albany,750,Grocery / Liquor,Grocery/Liquor
+Albany,726,Produce,Produce
+Albany,711,Seafood,Seafood
+Albany,751,Storeroom,Storeroom
+Albany,724,HR / Compliance,HR
+Albany,700,Operator Assistance,Humans
+Shore City,701,Checkout,Checkout
+Shore City,710,Bakery deli,Deli
+Shore City,712,Butchery seafood,Butchery & Seafood
+Shore City,716,Produce,Produce
+Shore City,709,Storeroom,Storeroom
+Shore City,702,Administration,Administration
+Shore City,700,Reception,Humans
